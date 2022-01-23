@@ -2,7 +2,9 @@ package co.com.acocar.user.controllers;
 
 import java.util.List;
 
+import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,10 @@ import co.com.acocar.user.model.User;
 import co.com.acocar.user.util.Util;
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @RestController
 @RequestMapping(value="user")
@@ -31,6 +37,9 @@ public class UserController {
 	@Autowired
 	Util util;
 	
+	@Operation(summary="Obtener listado de usuarios")
+	@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)))
+    @ApiResponse(responseCode = "400", description = "Error credentials")
 	@GetMapping(value = "/")
 	public ResponseEntity<?> getUSerList(@RequestHeader(value="token",required = true) String token) throws Exception{
 		List<User> list = null;
@@ -42,6 +51,9 @@ public class UserController {
 		return ResponseEntity.badRequest().body("Token no valido");
 	}
 	
+	@Operation(summary="Obtener usuario por id")
+	@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)))
+    @ApiResponse(responseCode = "400", description = "Error credentials")
 	@GetMapping(value="/{id}")
 	public ResponseEntity<?> getUSer(@RequestHeader(value="token",required = true) String token,@PathVariable(required = true) Long id) {
 		if(validarToken(token)) {
@@ -51,6 +63,9 @@ public class UserController {
 		return ResponseEntity.badRequest().body("Token no valido");
 	}
 	
+	@Operation(summary="Creacion de usuarios")
+	@ApiResponse(responseCode = "200", description = "usuario creado",content = @Content(schema = @Schema(implementation = String.class)))
+    @ApiResponse(responseCode = "400", description = "Error credentials")
 	@PostMapping(value="/")
 	public ResponseEntity<?> createUser(@RequestBody User u) {
 		
@@ -61,6 +76,9 @@ public class UserController {
 		return ResponseEntity.ok().body("usuario creado exitosamente: " + usuario.getId());
 	}
 	
+	@Operation(summary="Obtener token de sesion por credenciales")
+	@ApiResponse(responseCode = "200", description = "credenciales correctas",content = @Content(schema = @Schema(implementation = String.class)))
+    @ApiResponse(responseCode = "400", description = "Error credentials")
 	@PostMapping(value="/auth")
 	public ResponseEntity<?> login(@RequestBody AuthCredentialsDto auth){
 		User result = userDao.validUser(auth);
@@ -71,6 +89,9 @@ public class UserController {
 		
 	}
 	
+	@Operation(summary="Actualizar usuario")
+	@ApiResponse(responseCode = "200", description = "usuario actualizado",content = @Content(schema = @Schema(implementation = String.class)))
+    @ApiResponse(responseCode = "400", description = "Error credentials")
 	@PutMapping(value="/")
 	public ResponseEntity<?> updateUser(@RequestHeader(value="token",required = true) String token,@RequestBody User u) {
 		if(validarToken(token)) {
@@ -80,8 +101,11 @@ public class UserController {
 		return ResponseEntity.badRequest().body("Token no valido");
 	}
 	
+	@Operation(summary="Eliminar usuario")
+	@ApiResponse(responseCode = "200", description = "usuario eliminado",content = @Content(schema = @Schema(implementation = String.class)))
+    @ApiResponse(responseCode = "400", description = "Error credentials")
 	@DeleteMapping(value="/{id}")
-	public ResponseEntity<?> deleteUser(@RequestHeader(value="token",required = true) String token,@PathVariable(required = true) String id) {
+	public ResponseEntity<?> deleteUser(@RequestHeader(value="token",required = true) String token,@PathVariable(required = true) Long id) {
 		if(validarToken(token)) {
 			userDao.deleteUser(id);
 			return ResponseEntity.ok().body("usuario eliminado exitosamente");

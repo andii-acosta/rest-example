@@ -33,7 +33,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public void deleteUser(String id) {
+	public void deleteUser(Long id) {
 		User user = entitimanager.find(User.class, id);
 		entitimanager.remove(user);
 	}
